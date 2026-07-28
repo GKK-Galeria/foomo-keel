@@ -25,6 +25,7 @@ type (
 		Namespace         string
 		RegisterNamespace *workflowservice.RegisterNamespaceRequest
 		OtelEnabled       bool
+		ConnectionOptions client.ConnectionOptions
 	}
 	ClientOption func(o *ClientOptions)
 )
@@ -47,12 +48,19 @@ func ClientWithRegisterNamespace(v *workflowservice.RegisterNamespaceRequest) Cl
 	}
 }
 
+func ClientWithConnectionOptions(v client.ConnectionOptions) ClientOption {
+	return func(o *ClientOptions) {
+		o.ConnectionOptions = v
+	}
+}
+
 func DefaultClientOptions() ClientOptions {
 	return ClientOptions{
 		Logger:            log.Logger(),
 		Namespace:         "default",
 		RegisterNamespace: nil,
 		OtelEnabled:       env.GetBool("OTEL_TEMPORAL_ENABLED", env.GetBool("OTEL_ENABLED", false)),
+		ConnectionOptions: client.ConnectionOptions{},
 	}
 }
 
@@ -65,9 +73,10 @@ func NewClient(ctx context.Context, endpoint string, opts ...ClientOption) (clie
 	}
 
 	clientOpts := client.Options{
-		HostPort:  endpoint,
-		Namespace: o.Namespace,
-		Logger:    NewLogger(o.Logger),
+		HostPort:          endpoint,
+		Namespace:         o.Namespace,
+		Logger:            NewLogger(o.Logger),
+		ConnectionOptions: o.ConnectionOptions,
 	}
 
 	nsc, err := client.NewNamespaceClient(clientOpts)
