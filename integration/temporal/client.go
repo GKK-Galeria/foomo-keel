@@ -3,7 +3,6 @@ package keeltemporal
 import (
 	"context"
 
-	goerrors "github.com/foomo/go/errors"
 	"github.com/foomo/keel/env"
 	"github.com/foomo/keel/log"
 	"github.com/foomo/keel/telemetry"
@@ -86,10 +85,15 @@ func NewClient(ctx context.Context, endpoint string, opts ...ClientOption) (clie
 
 	// setup namespace
 	if o.RegisterNamespace != nil {
-		ns, err := nsc.Describe(ctx, o.RegisterNamespace.Namespace)
 		// Temporal's NamespaceClient.Describe returns *serviceerror.NamespaceNotFound on current
 		// servers; older servers returned *serviceerror.NotFound. Both are treated as "missing".
-		if goerrors.AsAnyType(err, &serviceerror.NotFound{}, &serviceerror.NamespaceNotFound{}) {
+		var (
+			notFoundErr          *serviceerror.NotFound
+			namespaceNotFoundErr *serviceerror.NamespaceNotFound
+		)
+
+		ns, err := nsc.Describe(ctx, o.RegisterNamespace.Namespace)
+		if errors.As(err, &notFoundErr) || errors.As(err, &namespaceNotFoundErr) {
 			if err := nsc.Register(ctx, o.RegisterNamespace); err != nil {
 				return nil, errors.Wrap(err, "failed to register temporal namespace")
 			}
