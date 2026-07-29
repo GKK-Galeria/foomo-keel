@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/avast/retry-go/v4 v4.7.0
 	github.com/fbiville/markdown-table-formatter v0.3.0
-	github.com/foomo/go v0.14.0
+	github.com/foomo/go v0.14.1
 	github.com/foomo/goflux v0.4.4
 	github.com/foomo/gofuncy v0.2.0
 	github.com/foomo/gostandards v0.3.0
