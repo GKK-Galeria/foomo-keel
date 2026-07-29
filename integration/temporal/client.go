@@ -3,6 +3,7 @@ package keeltemporal
 import (
 	"context"
 
+	goerrors "github.com/foomo/go/errors"
 	"github.com/foomo/keel/env"
 	"github.com/foomo/keel/log"
 	"github.com/foomo/keel/telemetry"
@@ -85,29 +86,28 @@ func NewClient(ctx context.Context, endpoint string, opts ...ClientOption) (clie
 
 	// setup namespace
 	if o.RegisterNamespace != nil {
+		ns, err := nsc.Describe(ctx, o.RegisterNamespace.Namespace)
 		// Temporal's NamespaceClient.Describe returns *serviceerror.NamespaceNotFound on current
 		// servers; older servers returned *serviceerror.NotFound. Both are treated as "missing".
-		var (
-			notFoundErr          *serviceerror.NotFound
-			namespaceNotFoundErr *serviceerror.NamespaceNotFound
-		)
-
-		ns, err := nsc.Describe(ctx, o.RegisterNamespace.Namespace)
-		if errors.As(err, &notFoundErr) || errors.As(err, &namespaceNotFoundErr) {
+		if goerrors.AsAnyType(err, &serviceerror.NotFound{}, &serviceerror.NamespaceNotFound{}) {
 			if err := nsc.Register(ctx, o.RegisterNamespace); err != nil {
 				return nil, errors.Wrap(err, "failed to register temporal namespace")
 			}
 		} else if err != nil {
 			return nil, errors.Wrap(err, "failed to retrieve temporal namespace info")
-		} else if state := ns.GetNamespaceInfo().GetState(); state != enums.NAMESPACE_STATE_REGISTERED { //nolint:nosnakecase
-			return nil, errors.New("Could not register namespace due to existing state: " + state.String())
-		} else if err := nsc.Update(ctx, &workflowservice.UpdateNamespaceRequest{
+		}
+
+		if ns.GetNamespaceInfo().GetState() != enums.NAMESPACE_STATE_REGISTERED { //nolint:nosnakecase
+			return nil, errors.New("Could not register namespace due to existing state: " + ns.GetNamespaceInfo().GetState().String())
+		}
+
+		if err := nsc.Update(ctx, &workflowservice.UpdateNamespaceRequest{
 			Namespace: o.RegisterNamespace.Namespace,
 			UpdateInfo: &namespace.UpdateNamespaceInfo{
 				Description: o.RegisterNamespace.Description,
 				OwnerEmail:  o.RegisterNamespace.OwnerEmail,
 				Data:        o.RegisterNamespace.Data,
-				State:       state,
+				State:       ns.GetNamespaceInfo().GetState(),
 			},
 			Config: &namespace.NamespaceConfig{
 				WorkflowExecutionRetentionTtl: o.RegisterNamespace.WorkflowExecutionRetentionPeriod,

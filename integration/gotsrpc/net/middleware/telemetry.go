@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/foomo/gotsrpc/v2"
 	"github.com/foomo/keel/env"
@@ -19,6 +18,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
+	semconv "go.opentelemetry.io/otel/semconv/v1.41.0"
 	"go.uber.org/zap"
 )
 
@@ -130,7 +130,7 @@ func TelemetryWithOptions(opts TelemetryOptions) keelhttp.Middleware {
 			*r = *gotsrpc.RequestWithStatsContext(r)
 
 			ctx := telemetry.Ctx(r.Context())
-			ctx.AddSpanEvent("GOTSRCP Telemetry")
+			ctx.AddSpanEvent("GOTSRPC Telemetry")
 
 			r = r.WithContext(ctx)
 
@@ -141,16 +141,12 @@ func TelemetryWithOptions(opts TelemetryOptions) keelhttp.Middleware {
 					ctx.SetSpanAttributes(keelsemconv.GoTSRPCPayload(sanitizePayload(r)))
 				}
 
-				var pkg string
-				if parts := strings.Split(stats.Package, "/"); len(parts) > 0 {
-					pkg = parts[len(parts)-1] + "."
-				}
-
 				// override span name
-				ctx.SetSpanName(fmt.Sprintf("GOTSRPC %s%s/%s", pkg, stats.Service, stats.Func))
+				ctx.SetSpanName(fmt.Sprintf("%s/%s", stats.Service, stats.Func))
 
 				// define default attributes
 				attrs := []attribute.KeyValue{
+					semconv.RPCSystemNameKey.String("gotsrpc"),
 					keelsemconv.GoTSRPCFunc(stats.Func),
 					keelsemconv.GoTSRPCService(stats.Service),
 					keelsemconv.GoTSRPCPackage(stats.Package),
