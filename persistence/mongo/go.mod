@@ -8,7 +8,7 @@ require (
 	github.com/foomo/keel v0.27.1
 	github.com/go-logr/zapr v1.3.0
 	github.com/pkg/errors v0.9.1
-	go.mongodb.org/mongo-driver/v2 v2.7.0
+	go.mongodb.org/mongo-driver/v2 v2.8.0
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/v2/mongo/otelmongo v0.0.0-20260623174712-bbae83b5df0c
 	go.uber.org/zap v1.28.0
 )
@@ -19,7 +19,7 @@ require (
 	github.com/foomo/opentelemetry-go v0.4.0 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/klauspost/compress v1.18.6 // indirect
+	github.com/klauspost/compress v1.19.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.2.0 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
