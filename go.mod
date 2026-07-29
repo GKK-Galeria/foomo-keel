@@ -5,16 +5,16 @@ go 1.26.0
 require (
 	github.com/avast/retry-go/v4 v4.7.0
 	github.com/fbiville/markdown-table-formatter v0.3.0
-	github.com/foomo/go v0.13.0
+	github.com/foomo/go v0.14.0
 	github.com/foomo/goflux v0.4.4
 	github.com/foomo/gofuncy v0.2.0
 	github.com/foomo/gostandards v0.3.0
 	github.com/foomo/opentelemetry-go v0.4.0
-	github.com/go-logr/logr v1.4.3
+	github.com/go-logr/logr v1.4.4
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
 	github.com/grafana/otel-profiling-go v0.6.0
-	github.com/grafana/pyroscope-go v1.3.1
+	github.com/grafana/pyroscope-go v1.4.1
 	github.com/invopop/jsonschema v0.14.0
 	github.com/klauspost/compress v1.18.6
 	github.com/mitchellh/mapstructure v1.5.0
