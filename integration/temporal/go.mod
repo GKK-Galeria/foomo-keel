@@ -8,8 +8,8 @@ require (
 	github.com/foomo/go v0.14.0
 	github.com/foomo/keel v0.27.1
 	github.com/pkg/errors v0.9.1
-	go.opentelemetry.io/otel v1.44.1-0.20260723093731-251b96b24897
-	go.opentelemetry.io/otel/metric v1.44.1-0.20260625150014-c84013202f01
+	go.opentelemetry.io/otel v1.44.0
+	go.opentelemetry.io/otel/metric v1.44.0
 	go.temporal.io/api v1.63.4
 	go.temporal.io/sdk v1.47.0
 	go.temporal.io/sdk/contrib/opentelemetry v0.8.1
@@ -71,10 +71,10 @@ require (
 	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v1.44.0 // indirect
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.44.0 // indirect
 	go.opentelemetry.io/otel/log v0.20.0 // indirect
-	go.opentelemetry.io/otel/sdk v1.44.1-0.20260625150014-c84013202f01 // indirect
+	go.opentelemetry.io/otel/sdk v1.44.0 // indirect
 	go.opentelemetry.io/otel/sdk/log v0.20.0 // indirect
-	go.opentelemetry.io/otel/sdk/metric v1.44.1-0.20260625150014-c84013202f01 // indirect
-	go.opentelemetry.io/otel/trace v1.44.1-0.20260625150014-c84013202f01 // indirect
+	go.opentelemetry.io/otel/sdk/metric v1.44.0 // indirect
+	go.opentelemetry.io/otel/trace v1.44.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.10.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/net v0.57.0 // indirect
