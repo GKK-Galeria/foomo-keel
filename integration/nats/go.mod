@@ -5,7 +5,7 @@ go 1.26.0
 replace github.com/foomo/keel => ../../
 
 require (
-	github.com/foomo/go v0.14.0
+	github.com/foomo/go v0.14.1
 	github.com/foomo/gofuncy v0.2.0
 	github.com/foomo/keel v0.27.1
 	github.com/foomo/opentelemetry-go v0.4.0
