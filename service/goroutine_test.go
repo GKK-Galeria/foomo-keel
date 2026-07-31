@@ -27,7 +27,7 @@ func ExampleNewGoRoutine() {
 			for {
 				// handle graceful shutdowns
 				if err := ctx.Err(); errors.Is(context.Cause(ctx), service.ErrServiceShutdown) {
-					l.Info("context has been canceled du to graceful shutdow")
+					l.Info("context has been canceled du to graceful shutdown")
 					return nil
 				} else if err != nil {
 					return errors.Wrap(err, "unexpected context error")
