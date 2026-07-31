@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	Name               = "github.com/foomo/keel"
+	Name               = "github.com/foomo/keel/telemetry"
 	DefaultServiceName = "undefined"
 )
 
