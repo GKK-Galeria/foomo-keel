@@ -104,7 +104,7 @@ func (c Context) Value(key any) any {
 
 // Deadline returns the time when work done on behalf of this context should be
 // canceled. Deadline returns ok==false when no deadline is set.
-func (c Context) Deadline() (deadline time.Time, ok bool) {
+func (c Context) Deadline() (deadline time.Time, ok bool) { //nolint:nonamedreturns
 	return c.ctx.Deadline()
 }
 
@@ -264,9 +264,9 @@ func (c Context) startSpan(name string, skip int, opts ...trace.SpanStartOption)
 		}
 	}
 
-	ctx, span := Tracer().Start(c.ctx, name, opts...)
+	ctx, span := Tracer().Start(c.ctx, name, opts...) //nolint:spancheck
 
-	return Ctx(ctx), span
+	return Ctx(ctx), span //nolint:spancheck
 }
 
 func (c Context) log(ctx context.Context, lvl zapcore.Level, msg string, skip int, kv ...attribute.KeyValue) {
