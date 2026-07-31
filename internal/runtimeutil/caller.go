@@ -34,7 +34,7 @@ func StackTrace(num, skip int) string {
 	for {
 		frame, more := frames.Next()
 
-		fmt.Fprintf(&ret, "%s\n  %s:%d\n", frame.Function, frame.File, frame.Line)
+		_, _ = fmt.Fprintf(&ret, "%s\n  %s:%d\n", frame.Function, frame.File, frame.Line)
 
 		if !more || len(ret.String()) == num {
 			break

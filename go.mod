@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/avast/retry-go/v4 v4.7.0
 	github.com/fbiville/markdown-table-formatter v0.3.0
-	github.com/foomo/go v0.14.1
+	github.com/foomo/go v0.15.0
 	github.com/foomo/goflux v0.4.4
 	github.com/foomo/gofuncy v0.2.0
 	github.com/foomo/gostandards v0.3.0
@@ -48,6 +48,7 @@ require (
 	go.opentelemetry.io/otel/sdk/log v0.20.0
 	go.opentelemetry.io/otel/sdk/metric v1.44.0
 	go.opentelemetry.io/otel/trace v1.44.0
+	go.uber.org/goleak v1.3.0
 	go.uber.org/zap v1.28.0
 	golang.org/x/crypto v0.54.0
 	golang.org/x/sync v0.22.0
