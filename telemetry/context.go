@@ -203,9 +203,9 @@ func (c Context) startSpan(prefix string, skip int, opts ...trace.SpanStartOptio
 		))
 	}
 
-	ctx, span := Tracer().Start(c.Context, name, opts...) //nolint:spancheck
+	ctx, span := Tracer().Start(c.Context, name, opts...)
 
-	return Ctx(ctx), span //nolint:spancheck
+	return Ctx(ctx), span
 }
 
 func (c Context) log(ctx context.Context, lvl zapcore.Level, msg string, skip int, kv ...attribute.KeyValue) {

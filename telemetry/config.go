@@ -17,13 +17,16 @@ var Version = sync.OnceValue(func() string {
 	if !ok {
 		return ""
 	}
+
 	if bi.Main.Path == Name {
 		return bi.Main.Version
 	}
+
 	for _, d := range bi.Deps {
 		if d.Path == Name {
 			return d.Version
 		}
 	}
+
 	return ""
 })
