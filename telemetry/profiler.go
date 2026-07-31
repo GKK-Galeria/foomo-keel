@@ -74,7 +74,7 @@ func NewProfiler(ctx context.Context) (*pyroscope.Profiler, error) {
 			key = "service_git_ref"
 		case semconv.VCSRepositoryURLFullKey:
 			key = "service_repository"
-		case "vcs_repository_path":
+		case "vcs.repository.path":
 			key = "service_root_path"
 		default:
 			key = strings.ReplaceAll(string(attr.Key), ".", "_")
@@ -85,9 +85,8 @@ func NewProfiler(ctx context.Context) (*pyroscope.Profiler, error) {
 
 	p, err := pyroscope.Start(pyroscope.Config{
 		ApplicationName: name,
-		// Logger:          internalpyroscope.NewLogger(),
-		ProfileTypes: profileTypes,
-		Tags:         tags,
+		ProfileTypes:    profileTypes,
+		Tags:            tags,
 	})
 	if err != nil {
 		return nil, err
