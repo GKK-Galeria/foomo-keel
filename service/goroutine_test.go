@@ -50,7 +50,7 @@ func ExampleNewGoRoutine() {
 	// {"level":"info","msg":"keel closer closed","graceful_period":"3s"}
 	// {"level":"info","msg":"keel closer closed: closers"}
 	// {"level":"info","msg":"stopping keel service","keel_service_type":"goroutine","keel_service_name":"demo"}
-	// {"level":"info","msg":"context has been canceled du to graceful shutdow","keel_service_type":"goroutine","keel_service_name":"demo","keel_service_inst":0}
+	// {"level":"info","msg":"context has been canceled du to graceful shutdown","keel_service_type":"goroutine","keel_service_name":"demo","keel_service_inst":0}
 	// {"level":"debug","msg":"keel closer closed","name":"*service.GoRoutine"}
 	// {"level":"debug","msg":"keel closer closed","name":"noop.TracerProvider"}
 	// {"level":"debug","msg":"keel closer closed","name":"noop.MeterProvider"}
