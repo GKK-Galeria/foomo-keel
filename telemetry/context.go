@@ -7,7 +7,6 @@ import (
 	"time"
 
 	goruntime "github.com/foomo/go/runtime"
-	keelsemconv "github.com/foomo/keel/semconv"
 	foomosemconv "github.com/foomo/opentelemetry-go/semconv"
 	"github.com/grafana/pyroscope-go"
 	"github.com/pkg/errors"
@@ -28,71 +27,75 @@ func Ctx(ctx context.Context) Context {
 }
 
 // ------------------------------------------------------------------------------------------------
-// ~ Public methods
+// ~ Log methods
 // ------------------------------------------------------------------------------------------------
 
 // LogDebug logs a message at `debug` level.
 func (c Context) LogDebug(msg string, kv ...attribute.KeyValue) {
-	c.log(c.ctx, zapcore.DebugLevel, msg, 1, kv...)
+	Log(c.ctx, zapcore.DebugLevel, msg, 1, kv...)
 }
 
 // LogInfo logs a message at `info` level.
 func (c Context) LogInfo(msg string, kv ...attribute.KeyValue) {
-	c.log(c.ctx, zapcore.InfoLevel, msg, 1, kv...)
+	Log(c.ctx, zapcore.InfoLevel, msg, 1, kv...)
 }
 
 // LogWarn logs a message at `warn` level.
 func (c Context) LogWarn(msg string, kv ...attribute.KeyValue) {
-	c.log(c.ctx, zapcore.WarnLevel, msg, 1, kv...)
+	Log(c.ctx, zapcore.WarnLevel, msg, 1, kv...)
 }
 
 // LogError logs a message at `error` level.
 func (c Context) LogError(msg string, kv ...attribute.KeyValue) {
-	c.log(c.ctx, zapcore.ErrorLevel, msg, 1, kv...)
+	Log(c.ctx, zapcore.ErrorLevel, msg, 1, kv...)
 }
+
+// ------------------------------------------------------------------------------------------------
+// ~ Context methods
+// ------------------------------------------------------------------------------------------------
 
 // Context returns the underlying context.Context.
 func (c Context) Context() context.Context {
 	return c.ctx
 }
 
-// ContextWithCancel returns a copy of the context with a new Done channel.
+// WithCancel returns a copy of the context with a new Done channel.
 // The returned context's Done channel is closed when the returned cancel function
 // is called or when the parent context's Done channel is closed, whichever happens first.
-func (c Context) ContextWithCancel() (context.Context, context.CancelFunc) {
+func (c Context) WithCancel() (context.Context, context.CancelFunc) {
 	return context.WithCancel(c.ctx)
 }
 
-// ContextWithCancelCause returns a copy of the context with a new Done channel and
+// WithCancelCause returns a copy of the context with a new Done channel and
 // a CancelCauseFunc instead of a CancelFunc. Calling cancel with a non-nil error
 // (the "cause") records that error in the context; it can then be retrieved using Cause(ctx).
-func (c Context) ContextWithCancelCause() (context.Context, context.CancelCauseFunc) {
+func (c Context) WithCancelCause() (context.Context, context.CancelCauseFunc) {
 	return context.WithCancelCause(c.ctx)
 }
 
-// ContextWith returns a copy of the context with a deadline.
+// WithDeadline returns a copy of the context with a deadline.
 // The returned context's Done channel is closed when the deadline expires, when the
 // returned cancel function is called, or when the parent context's Done channel is
 // closed, whichever happens first.
-func (c Context) ContextWith(deadline time.Time) (context.Context, context.CancelFunc) {
+func (c Context) WithDeadline(deadline time.Time) (context.Context, context.CancelFunc) {
 	return context.WithDeadline(c.ctx, deadline)
 }
 
-// ContextWithTimeout returns a copy of the context with a timeout.
+// WithTimeout returns a copy of the context with a timeout.
 // It is equivalent to ContextWith(time.Now().Add(timeout)).
-func (c Context) ContextWithTimeout(timeout time.Duration) (context.Context, context.CancelFunc) {
+func (c Context) WithTimeout(timeout time.Duration) (context.Context, context.CancelFunc) {
 	return context.WithTimeout(c.ctx, timeout)
 }
 
-// ContextWithValue returns a copy of the context with the key-value pair associated.
-func (c Context) ContextWithValue(key, val any) context.Context {
+// WithValue returns a copy of the context with the key-value pair associated.
+func (c Context) WithValue(key, val any) context.Context {
 	return context.WithValue(c.ctx, key, val)
 }
 
-// ContextWithoutCancel returns a copy of the context that is not canceled when
+// WithoutCancel returns a copy of the context that is not canceled when
 // parent is canceled. The returned context returns no Deadline or Err, and its
 // Done channel is nil.
-func (c Context) ContextWithoutCancel() context.Context {
+func (c Context) WithoutCancel() context.Context {
 	return context.WithoutCancel(c.ctx)
 }
 
@@ -120,46 +123,28 @@ func (c Context) Err() error {
 	return c.ctx.Err()
 }
 
+// ------------------------------------------------------------------------------------------------
+// ~ Trace methods
+// ------------------------------------------------------------------------------------------------
+
 // Span returns the span from the context.
 func (c Context) Span() trace.Span {
-	return trace.SpanFromContext(c.ctx)
+	return SpanFromContext(c.ctx)
 }
 
 // SetSpanDebug sets the span debug attribute.
 func (c Context) SetSpanDebug() {
-	c.Span().SetAttributes(keelsemconv.DebugEnabled(true))
+	SetSpanDebug(c.ctx)
 }
 
 // EndSpan ends the span.
 func (c Context) EndSpan(err error, opts ...trace.SpanEndOption) {
-	sp := c.Span()
-	if sp.IsRecording() {
-		if err != nil {
-			sp.RecordError(err, trace.WithAttributes(CodeStacktrace(3, 0)))
-			sp.SetStatus(codes.Error, errors.Cause(err).Error())
-		} else {
-			c.SetSpanStatusOK()
-		}
-
-		sp.End(opts...)
-	}
+	EndSpan(c.ctx, err, opts...)
 }
 
-// DeferEndSpan is a helper so you can do `defer ctx.DeferEndSpan(&err)` instead of `defer func(){ ctx.EndSpan(err) }()`
+// DeferEndSpan is a helper, so you can do `defer ctx.DeferEndSpan(&err)` instead of `defer func(){ ctx.EndSpan(err) }()`
 func (c Context) DeferEndSpan(err *error, opts ...trace.SpanEndOption) {
-	e := *err
-
-	sp := c.Span()
-	if sp.IsRecording() {
-		if e != nil {
-			sp.RecordError(e, trace.WithAttributes(CodeStacktrace(5, 2)))
-			sp.SetStatus(codes.Error, errors.Cause(e).Error())
-		} else {
-			c.SetSpanStatusOK()
-		}
-
-		sp.End(opts...)
-	}
+	DeferEndSpan(c.ctx, err, opts...)
 }
 
 // SetSpanStatusOK sets the status of the span to ok.
@@ -267,8 +252,4 @@ func (c Context) startSpan(name string, skip int, opts ...trace.SpanStartOption)
 	ctx, span := Tracer().Start(c.ctx, name, opts...) //nolint:spancheck
 
 	return Ctx(ctx), span //nolint:spancheck
-}
-
-func (c Context) log(ctx context.Context, lvl zapcore.Level, msg string, skip int, kv ...attribute.KeyValue) {
-	Log(ctx, lvl, msg, skip+1, kv...)
 }
