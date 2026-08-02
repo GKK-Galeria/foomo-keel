@@ -2,17 +2,14 @@ package telemetry
 
 import (
 	"context"
-	"path"
 	"runtime/pprof"
 	"time"
 
-	goruntime "github.com/foomo/go/runtime"
 	foomosemconv "github.com/foomo/opentelemetry-go/semconv"
 	"github.com/grafana/pyroscope-go"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
-	semconv "go.opentelemetry.io/otel/semconv/v1.41.0"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap/zapcore"
 )
@@ -196,19 +193,19 @@ func (c Context) AddSpanEvent(name string, kv ...attribute.KeyValue) {
 
 // StartSpan starts a span.
 func (c Context) StartSpan(opts ...trace.SpanStartOption) Context {
-	ctx, _ := c.startSpan("", 1, opts...)
+	ctx, _ := startSpan(c.ctx, 1, opts...)
 	return ctx
 }
 
 // StartSpanWithNewRoot sets the name of the span.
 func (c Context) StartSpanWithNewRoot(opts ...trace.SpanStartOption) Context {
-	ctx, _ := c.startSpan("", 1, append(opts, trace.WithNewRoot(), trace.WithLinks(trace.LinkFromContext(c.ctx)))...)
+	ctx, _ := startSpan(c.ctx, 1, append(opts, trace.WithNewRoot(), trace.WithLinks(trace.LinkFromContext(c.ctx)))...)
 	return ctx
 }
 
 // StartSpanWithProfile starts a span and profiles the handler.
 func (c Context) StartSpanWithProfile(name string, handler func(ctx Context), kv ...attribute.KeyValue) {
-	ctx, span := c.startSpan("", 1, trace.WithAttributes(kv...))
+	ctx, span := startSpan(c.ctx, 1, trace.WithAttributes(kv...))
 	defer span.End()
 
 	ctx.StartProfile(name, handler, kv...)
@@ -229,27 +226,4 @@ func (c Context) SetProfileAttributes(kv ...attribute.KeyValue) Context {
 	pprof.SetGoroutineLabels(ctx)
 
 	return Ctx(ctx)
-}
-
-// ------------------------------------------------------------------------------------------------
-// ~ Private methods
-// ------------------------------------------------------------------------------------------------
-
-func (c Context) startSpan(name string, skip int, opts ...trace.SpanStartOption) (Context, trace.Span) {
-	if name == "" {
-		if fr := goruntime.CallFrame(skip + 1); !fr.Zero() {
-			name = path.Base(fr.Pkg) + "." + fr.Short()
-			opts = append(opts, trace.WithAttributes(
-				semconv.CodeFunctionName(fr.Name()),
-				semconv.CodeLineNumber(fr.Line),
-				semconv.CodeFilePath(fr.File),
-			))
-		} else {
-			name = "runtime.go"
-		}
-	}
-
-	ctx, span := Tracer().Start(c.ctx, name, opts...) //nolint:spancheck
-
-	return Ctx(ctx), span //nolint:spancheck
 }

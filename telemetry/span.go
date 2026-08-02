@@ -2,22 +2,25 @@ package telemetry
 
 import (
 	"context"
+	"path"
 
+	goruntime "github.com/foomo/go/runtime"
 	keelsemconv "github.com/foomo/keel/semconv"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
+	semconv "go.opentelemetry.io/otel/semconv/v1.41.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
 // Deprecated: use StartSpan instead.
 func Start(ctx context.Context, spanName string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
-	return StartSpan(ctx, spanName, opts...)
+	return startSpan(ctx, 1, opts...)
 }
 
 // StartSpan starts a new span with the given name and options.
-func StartSpan(ctx context.Context, spanName string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
-	return Tracer().Start(ctx, spanName, opts...) //nolint:spancheck
+func StartSpan(ctx context.Context, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
+	return startSpan(ctx, 1, opts...)
 }
 
 func SpanFromContext(ctx context.Context) trace.Span {
@@ -98,4 +101,21 @@ func DeferEndSpan(ctx context.Context, err *error, opts ...trace.SpanEndOption) 
 	}
 
 	sp.End(opts...)
+}
+
+func startSpan(ctx context.Context, skip int, opts ...trace.SpanStartOption) (Context, trace.Span) {
+	name := "runtime.go"
+
+	if fr := goruntime.CallFrame(skip + 1); !fr.Zero() {
+		name = path.Base(fr.Pkg)
+		opts = append(opts, trace.WithAttributes(
+			semconv.CodeFunctionName(fr.Name()),
+			semconv.CodeLineNumber(fr.Line),
+			semconv.CodeFilePath(fr.File),
+		))
+	}
+
+	ctx, span := Tracer().Start(ctx, name, opts...) //nolint:spancheck
+
+	return Ctx(ctx), span //nolint:spancheck
 }
