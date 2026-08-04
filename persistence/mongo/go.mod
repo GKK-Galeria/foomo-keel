@@ -6,6 +6,7 @@ replace github.com/foomo/keel => ../../
 
 require (
 	github.com/foomo/keel v0.27.1
+	github.com/foomo/mongo-lock v0.2.0
 	github.com/go-logr/zapr v1.3.0
 	github.com/pkg/errors v0.9.1
 	go.mongodb.org/mongo-driver/v2 v2.8.0

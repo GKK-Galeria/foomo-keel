@@ -155,7 +155,7 @@ actionlint:
 	@actionlint
 
 .PHONY: help
-# https://patorjk.com/software/taag/#p=display&f=Tmplr&t=keel&x=none&v=4&h=4&w=80&we=false
+# https://patorjk.com/software/taag/#p=display&f=Future+Smooth&t=keel&x=none&v=4&h=4&w=80&we=false
 ## Show help text
 help: g=\033[0;32m
 help: b=\033[0;34m
@@ -163,9 +163,9 @@ help: w=\033[0;90m
 help: e=\033[0m
 help:
 	@echo "$(g)"
-	@echo "┓     ┓"
-	@echo "┃┏┏┓┏┓┃"
-	@echo "┛┗┗ ┗ ┗"
+	@echo "╷╭ ╭─╴╭─╴╷"
+	@echo "├┴╮├╴ ├╴ │"
+	@echo "╵ ╵╰─╴╰─╴╰─╴"
 	@echo "with ❤ foomo by bestbytes"
 	@echo "$(e)"
 	@echo "$(b)Usage:$(e)\n  make [task]"

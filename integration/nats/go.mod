@@ -5,8 +5,8 @@ go 1.26.0
 replace github.com/foomo/keel => ../../
 
 require (
-	github.com/foomo/go v0.14.1
-	github.com/foomo/gofuncy v0.2.0
+	github.com/foomo/go v0.16.0
+	github.com/foomo/gofuncy v0.4.0
 	github.com/foomo/keel v0.27.1
 	github.com/foomo/opentelemetry-go v0.4.0
 	github.com/nats-io/nats-server/v2 v2.14.3
@@ -36,7 +36,7 @@ require (
 	github.com/fatih/color v1.19.0 // indirect
 	github.com/fbiville/markdown-table-formatter v0.3.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/foomo/goflux v0.4.4 // indirect
+	github.com/foomo/goflux v0.6.0 // indirect
 	github.com/foomo/gostandards v0.3.0 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
@@ -134,6 +134,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.54.0 // indirect
 	golang.org/x/exp v0.0.0-20260529124908-c761662dc8c9 // indirect
+	golang.org/x/mod v0.38.0 // indirect
 	golang.org/x/net v0.57.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
@@ -144,7 +145,7 @@ require (
 	google.golang.org/genproto v0.0.0-20260526163538-3dc84a4a5aaa // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260526163538-3dc84a4a5aaa // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260526163538-3dc84a4a5aaa // indirect
-	google.golang.org/grpc v1.81.1 // indirect
+	google.golang.org/grpc v1.82.1 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
