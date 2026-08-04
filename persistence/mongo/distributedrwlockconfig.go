@@ -1,14 +1,3 @@
-// Package distributedreadwritelock is a small shared/exclusive distributed lock over
-// MongoDB (github.com/foomo/mongo-lock) used to coordinate concurrent work
-// against a single exclusive operation on one cluster-wide resource. Concurrent
-// workers take a shared lock; the exclusive operation takes an exclusive lock.
-// While the exclusive lock is held, shared locks cannot be acquired (and are
-// rejected); while any shared lock is held, the exclusive lock cannot be
-// acquired (and waits/retries until in-flight shared holders drain).
-//
-// It is configured per use case via DistributedRWLockConfig (collection, resource name, TTLs and
-// drain bounds), so the same coordination primitive can back different
-// resources.
 package keelmongo
 
 import (

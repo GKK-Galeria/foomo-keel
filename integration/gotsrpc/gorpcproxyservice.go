@@ -17,12 +17,15 @@ func NewGoRPCProxyService(proxy GoRPCProxy) *GoRPCProxyService {
 
 func (s *GoRPCProxyService) Start(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
+
 	s.cancel = cancel
 	if err := s.proxy.Start(); err != nil {
 		return err
 	}
+
 	<-ctx.Done()
 	s.proxy.Stop()
+
 	return ctx.Err()
 }
 
@@ -31,5 +34,6 @@ func (s *GoRPCProxyService) Close(ctx context.Context) error {
 		s.cancel()
 		s.cancel = nil
 	}
+
 	return nil
 }

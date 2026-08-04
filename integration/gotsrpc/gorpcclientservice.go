@@ -21,6 +21,7 @@ func (s *GoRPCClientService) Start(ctx context.Context) error {
 	s.client.Start()
 	<-ctx.Done()
 	s.client.Stop()
+
 	return ctx.Err()
 }
 
@@ -29,5 +30,6 @@ func (s *GoRPCClientService) Close(ctx context.Context) error {
 		s.cancel()
 		s.cancel = nil
 	}
+
 	return nil
 }
