@@ -80,6 +80,8 @@ func TelemetryWithPayloadAttributeDisabled(v bool) TelemetryOption {
 }
 
 // Telemetry middleware
+//
+// Deprecated: use gotsrpc v3 as includes otel
 func Telemetry(opts ...TelemetryOption) keelhttp.Middleware {
 	options := DefaultTelemetryOptions()
 
@@ -93,6 +95,8 @@ func Telemetry(opts ...TelemetryOption) keelhttp.Middleware {
 }
 
 // TelemetryWithOptions middleware
+//
+// Deprecated: use gotsrpc v3 as includes otel
 func TelemetryWithOptions(opts TelemetryOptions) keelhttp.Middleware {
 	m, err := gotsrpcconv.NewExecutionDuration(
 		opts.meter,
