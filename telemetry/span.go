@@ -23,6 +23,11 @@ func StartSpan(ctx context.Context, opts ...trace.SpanStartOption) (context.Cont
 	return startSpan(ctx, 1, opts...)
 }
 
+// StartDebugSpan starts a new span with the given name and options and adds the debug attr.
+func StartDebugSpan(ctx context.Context, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
+	return startSpan(ctx, 1, append(opts, trace.WithAttributes(keelsemconv.DebugEnabled(true)))...)
+}
+
 func SpanFromContext(ctx context.Context) trace.Span {
 	return trace.SpanFromContext(ctx)
 }
@@ -80,8 +85,6 @@ func EndSpan(ctx context.Context, err error, opts ...trace.SpanEndOption) {
 	if err != nil {
 		sp.RecordError(err, trace.WithAttributes(CodeStacktrace(3, 0)))
 		sp.SetStatus(codes.Error, errors.Cause(err).Error())
-	} else {
-		sp.SetStatus(codes.Ok, "")
 	}
 
 	sp.End(opts...)
@@ -89,18 +92,7 @@ func EndSpan(ctx context.Context, err error, opts ...trace.SpanEndOption) {
 
 // DeferEndSpan is a helper, so you can do `defer ctx.DeferEndSpan(&err)` instead of `defer func(){ ctx.EndSpan(err) }()`
 func DeferEndSpan(ctx context.Context, err *error, opts ...trace.SpanEndOption) {
-	e := *err
-
-	sp := SpanFromContext(ctx)
-
-	if e != nil {
-		sp.RecordError(e, trace.WithAttributes(CodeStacktrace(5, 2)))
-		sp.SetStatus(codes.Error, errors.Cause(e).Error())
-	} else {
-		sp.SetStatus(codes.Ok, "")
-	}
-
-	sp.End(opts...)
+	EndSpan(ctx, *err)
 }
 
 func startSpan(ctx context.Context, skip int, opts ...trace.SpanStartOption) (Context, trace.Span) {
