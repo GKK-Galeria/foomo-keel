@@ -141,9 +141,9 @@ func NewCollection(db *mongo.Database, name string, opts ...CollectionOption) (*
 
 	if len(o.Indexes) > 0 {
 		if err := func(ctx context.Context) error {
-
 			if o.IndexesMaxTime > 0 {
 				var cancel context.CancelFunc
+
 				ctx, cancel = context.WithTimeout(ctx, o.IndexesMaxTime)
 				defer cancel()
 			}
