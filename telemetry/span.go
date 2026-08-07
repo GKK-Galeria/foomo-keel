@@ -15,17 +15,17 @@ import (
 
 // Deprecated: use StartSpan instead.
 func Start(ctx context.Context, spanName string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
-	return InternalStartSpan(ctx, 1, opts...)
+	return StartSpanWithSkip(ctx, 1, opts...)
 }
 
 // StartSpan starts a new span with the given name and options.
 func StartSpan(ctx context.Context, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
-	return InternalStartSpan(ctx, 1, opts...)
+	return StartSpanWithSkip(ctx, 1, opts...)
 }
 
 // StartDebugSpan starts a new span with the given name and options and adds the debug attr.
 func StartDebugSpan(ctx context.Context, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
-	return InternalStartSpan(ctx, 1, append(opts, trace.WithAttributes(keelsemconv.DebugEnabled(true)))...)
+	return StartSpanWithSkip(ctx, 1, append(opts, trace.WithAttributes(keelsemconv.DebugEnabled(true)))...)
 }
 
 // SpanFromContext returns the span from the context.
@@ -107,9 +107,9 @@ func DeferEndSpan(sp trace.Span, err *error, opts ...trace.SpanEndOption) {
 	EndSpan(sp, *err, opts...)
 }
 
-// InternalStartSpan starts a span with skip.
+// StartSpanWithSkip starts a span with skip.
 // It's only supposed to be used internally or by other telemetry packages
-func InternalStartSpan(ctx context.Context, skip int, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
+func StartSpanWithSkip(ctx context.Context, skip int, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
 	name := "runtime.go"
 
 	if fr := goruntime.CallFrame(skip + 1); !fr.Zero() {

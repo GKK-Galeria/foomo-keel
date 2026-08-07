@@ -203,19 +203,19 @@ func (c Context) AddSpanLink(parent trace.Span, attrs ...attribute.KeyValue) {
 
 // StartSpan starts a span.
 func (c Context) StartSpan(opts ...trace.SpanStartOption) Context {
-	ctx, _ := InternalStartSpan(c.ctx, 1, opts...)
+	ctx, _ := StartSpanWithSkip(c.ctx, 1, opts...)
 	return Ctx(ctx)
 }
 
 // StartSpanWithNewRoot sets the name of the span.
 func (c Context) StartSpanWithNewRoot(opts ...trace.SpanStartOption) Context {
-	ctx, _ := InternalStartSpan(c.ctx, 1, append(opts, trace.WithNewRoot(), trace.WithLinks(trace.LinkFromContext(c.ctx)))...)
+	ctx, _ := StartSpanWithSkip(c.ctx, 1, append(opts, trace.WithNewRoot(), trace.WithLinks(trace.LinkFromContext(c.ctx)))...)
 	return Ctx(ctx)
 }
 
 // StartSpanWithProfile starts a span and profiles the handler.
 func (c Context) StartSpanWithProfile(name string, handler func(ctx Context), kv ...attribute.KeyValue) {
-	ctx, span := InternalStartSpan(c.ctx, 1, trace.WithAttributes(kv...))
+	ctx, span := StartSpanWithSkip(c.ctx, 1, trace.WithAttributes(kv...))
 	defer span.End()
 
 	Ctx(ctx).StartProfile(name, handler, kv...)
