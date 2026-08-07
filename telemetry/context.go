@@ -59,41 +59,45 @@ func (c Context) Context() context.Context {
 // WithCancel returns a copy of the context with a new Done channel.
 // The returned context's Done channel is closed when the returned cancel function
 // is called or when the parent context's Done channel is closed, whichever happens first.
-func (c Context) WithCancel() (context.Context, context.CancelFunc) {
-	return context.WithCancel(c.ctx)
+func (c Context) WithCancel() (Context, context.CancelFunc) {
+	ctx, cancel := context.WithCancel(c.ctx)
+	return Ctx(ctx), cancel
 }
 
 // WithCancelCause returns a copy of the context with a new Done channel and
 // a CancelCauseFunc instead of a CancelFunc. Calling cancel with a non-nil error
 // (the "cause") records that error in the context; it can then be retrieved using Cause(ctx).
-func (c Context) WithCancelCause() (context.Context, context.CancelCauseFunc) {
-	return context.WithCancelCause(c.ctx)
+func (c Context) WithCancelCause() (Context, context.CancelCauseFunc) {
+	ctx, cancel := context.WithCancelCause(c.ctx)
+	return Ctx(ctx), cancel
 }
 
 // WithDeadline returns a copy of the context with a deadline.
 // The returned context's Done channel is closed when the deadline expires, when the
 // returned cancel function is called, or when the parent context's Done channel is
 // closed, whichever happens first.
-func (c Context) WithDeadline(deadline time.Time) (context.Context, context.CancelFunc) {
-	return context.WithDeadline(c.ctx, deadline)
+func (c Context) WithDeadline(deadline time.Time) (Context, context.CancelFunc) {
+	ctx, cancel := context.WithDeadline(c.ctx, deadline)
+	return Ctx(ctx), cancel
 }
 
 // WithTimeout returns a copy of the context with a timeout.
 // It is equivalent to ContextWith(time.Now().Add(timeout)).
-func (c Context) WithTimeout(timeout time.Duration) (context.Context, context.CancelFunc) {
-	return context.WithTimeout(c.ctx, timeout)
+func (c Context) WithTimeout(timeout time.Duration) (Context, context.CancelFunc) {
+	ctx, cancel := context.WithTimeout(c.ctx, timeout)
+	return Ctx(ctx), cancel
 }
 
 // WithValue returns a copy of the context with the key-value pair associated.
-func (c Context) WithValue(key, val any) context.Context {
-	return context.WithValue(c.ctx, key, val)
+func (c Context) WithValue(key, val any) Context {
+	return Ctx(context.WithValue(c.ctx, key, val))
 }
 
 // WithoutCancel returns a copy of the context that is not canceled when
 // parent is canceled. The returned context returns no Deadline or Err, and its
 // Done channel is nil.
-func (c Context) WithoutCancel() context.Context {
-	return context.WithoutCancel(c.ctx)
+func (c Context) WithoutCancel() Context {
+	return Ctx(context.WithoutCancel(c.ctx))
 }
 
 // Value returns the value associated with this context for key, or nil
@@ -131,17 +135,17 @@ func (c Context) Span() trace.Span {
 
 // SetSpanDebug sets the span debug attribute.
 func (c Context) SetSpanDebug() {
-	SetSpanDebug(c.ctx)
+	SetSpanDebug(c.Span())
 }
 
 // EndSpan ends the span.
 func (c Context) EndSpan(err error, opts ...trace.SpanEndOption) {
-	EndSpan(c.ctx, err, opts...)
+	EndSpan(c.Span(), err, opts...)
 }
 
 // DeferEndSpan is a helper, so you can do `defer ctx.DeferEndSpan(&err)` instead of `defer func(){ ctx.EndSpan(err) }()`
 func (c Context) DeferEndSpan(err *error, opts ...trace.SpanEndOption) {
-	DeferEndSpan(c.ctx, err, opts...)
+	DeferEndSpan(c.Span(), err, opts...)
 }
 
 // SetSpanStatusOK sets the status of the span to ok.
@@ -152,38 +156,35 @@ func (c Context) SetSpanStatusOK() {
 // SetSpanStatusError sets the status of the span to error.
 func (c Context) SetSpanStatusError(description string) {
 	c.Span().SetStatus(codes.Error, description)
+	SetSpanStatusError(c.Span(), description)
 }
 
 // SetSpanName sets the name of the span.
 func (c Context) SetSpanName(name string) {
-	c.Span().SetName(name)
+	SetSpanName(c.Span(), name)
 }
 
 // SetSpanAttributes sets the attributes of the span.
 func (c Context) SetSpanAttributes(kv ...attribute.KeyValue) {
-	c.Span().SetAttributes(kv...)
+	SetSpanAttributes(c.Span(), kv...)
 }
 
 // RecordError records an error on the span and logs it.
 func (c Context) RecordError(err error, kv ...attribute.KeyValue) {
 	sp := c.Span()
-	if sp.IsRecording() {
-		sp.RecordError(err,
-			trace.WithAttributes(kv...),
-			trace.WithAttributes(CodeStacktrace(5, 1)),
-		)
-		sp.SetStatus(codes.Error, errors.Cause(err).Error())
-	}
+	sp.RecordError(err,
+		trace.WithAttributes(kv...),
+		trace.WithAttributes(CodeStacktrace(5, 1)),
+	)
+	sp.SetStatus(codes.Error, errors.Cause(err).Error())
 }
 
 // RecordSpanError records an error on the span.
 func (c Context) RecordSpanError(err error, kv ...attribute.KeyValue) {
 	sp := c.Span()
-	if sp.IsRecording() {
-		sp.RecordError(err,
-			trace.WithAttributes(append(kv, CodeStacktrace(5, 1))...),
-		)
-	}
+	sp.RecordError(err,
+		trace.WithAttributes(append(kv, CodeStacktrace(5, 1))...),
+	)
 }
 
 // AddSpanEvent adds an event to the span.
@@ -191,24 +192,33 @@ func (c Context) AddSpanEvent(name string, kv ...attribute.KeyValue) {
 	c.Span().AddEvent(name, trace.WithAttributes(kv...))
 }
 
+// AddSpanLink adds a link to the span.
+func (c Context) AddSpanLink(parent trace.Span, attrs ...attribute.KeyValue) {
+	sp := c.Span()
+	sp.AddLink(trace.Link{
+		SpanContext: parent.SpanContext(),
+		Attributes:  attrs,
+	})
+}
+
 // StartSpan starts a span.
 func (c Context) StartSpan(opts ...trace.SpanStartOption) Context {
-	ctx, _ := startSpan(c.ctx, 1, opts...)
-	return ctx
+	ctx, _ := StartSpanWithSkip(c.ctx, 1, opts...)
+	return Ctx(ctx)
 }
 
 // StartSpanWithNewRoot sets the name of the span.
 func (c Context) StartSpanWithNewRoot(opts ...trace.SpanStartOption) Context {
-	ctx, _ := startSpan(c.ctx, 1, append(opts, trace.WithNewRoot(), trace.WithLinks(trace.LinkFromContext(c.ctx)))...)
-	return ctx
+	ctx, _ := StartSpanWithSkip(c.ctx, 1, append(opts, trace.WithNewRoot(), trace.WithLinks(trace.LinkFromContext(c.ctx)))...)
+	return Ctx(ctx)
 }
 
 // StartSpanWithProfile starts a span and profiles the handler.
 func (c Context) StartSpanWithProfile(name string, handler func(ctx Context), kv ...attribute.KeyValue) {
-	ctx, span := startSpan(c.ctx, 1, trace.WithAttributes(kv...))
+	ctx, span := StartSpanWithSkip(c.ctx, 1, trace.WithAttributes(kv...))
 	defer span.End()
 
-	ctx.StartProfile(name, handler, kv...)
+	Ctx(ctx).StartProfile(name, handler, kv...)
 }
 
 // StartProfile starts a profile for the handler.

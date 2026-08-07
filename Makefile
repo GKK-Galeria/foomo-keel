@@ -88,7 +88,6 @@ test.bench:
 ## Run security audit
 audit:
 	@echo "〉security audit"
-	@go install golang.org/x/vuln/cmd/govulncheck@latest
 	@$(foreach mod,$(GOMODS), (cd $(dir $(mod)) && echo "📂 $(dir $(mod))" && govulncheck ./...) &&) true
 
 ### Dependencies
@@ -101,18 +100,16 @@ tidy:
 	@go work use -r . && go work sync
 
 .PHONY: outdated
-## Show outdated direct dependencies in all go.mod files
+## Show outdated direct dependencies
 outdated:
 	@echo "〉go mod outdated"
-	@$(foreach mod,$(GOMODS),(cd $(dir $(mod)) && echo "📂 $(dir $(mod))" && GOWORK=off go list -u -m -json all | go-mod-outdated -update -direct) &&) true
+	@$(foreach mod,$(GOMODS),(cd $(dir $(mod)) && echo "📂 $(dir $(mod))" && GOWORK=off go-mod-upgrade --list) &&) true
 
 .PHONY: upgrade
-## Upgrade direct dependencies (same major version) in all go.mod files
-# Intra-repo modules: skipped, because GOWORK=off resolves them from the proxy
-upgrade: INTERNAL_PREFIX ?= github.com/foomo/keel
+## Upgrade direct dependencies
 upgrade:
 	@echo "〉go mod upgrade"
-	@$(foreach mod,$(GOMODS),(cd $(dir $(mod)) && echo "📂 $(dir $(mod))" && deps=$$(GOWORK=off go list -u -m -f '{{if and (not .Main) (not .Indirect) (not .Replace) .Update}}{{.Path}}@{{.Update.Version}}{{end}}' all | grep -v '^$(INTERNAL_PREFIX)' || true) && { [ -z "$$deps" ] && echo "   ✓ up to date" || GOWORK=off go get $$deps; }) &&) true
+	@$(foreach mod,$(GOMODS),(cd $(dir $(mod)) && echo "📂 $(dir $(mod))" && GOWORK=off go-mod-upgrade }) &&) true
 	@$(MAKE) tidy
 
 ### Release
